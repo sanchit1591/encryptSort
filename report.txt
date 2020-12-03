@@ -1,11 +1,4 @@
-CS 35L
-Assignment 6
-
-**************
-**************
-**Laboratory** 
-**************
-**************
+PROCESS AND COMPARISON 
 
 1) In this lab my first step was to write two C programs tr2b.c and tr2u.c
 that use library functions and system calls respectively
