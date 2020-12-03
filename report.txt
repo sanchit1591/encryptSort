@@ -1,0 +1,142 @@
+CS 35L
+Assignment 6
+
+**************
+**************
+**Laboratory** 
+**************
+**************
+
+1) In this lab my first step was to write two C programs tr2b.c and tr2u.c
+that use library functions and system calls respectively
+
+2) After succesfully writing the programs, I tested both the files with my 
+test cases and the autograder. 
+
+3) After this the next step was to create a 5000000 bytes file called myfile.txt. 
+This file was created using the following python code.
+
+import random 
+
+f = open("myfile.txt", "a")
+i = 0
+while i < 5000000:
+	f.write(random.choice("abcdefghijklmnopqrstuvwxyz"))
+	i += 1
+
+4) Then to measure the performace of both the tr in copying files , I can set the 
+from and to strings to be empty (""). As hinted in the assigment, strace was used to 
+carry out the task with the following commands
+
+Copying files to another file
+strace -c ./tr2u "" "" < ../myfile.txt > temp.txt 
+strace -c ./tr2b "" "" < ../myfile.txt > temp.txt
+
+Copying files to terminal
+strace -c ./tr2u "" "" < ../myfile.txt
+strace -c ./tr2b "" "" < ../myfile.txt
+
+tr2u
+Copying to another file = 10000024 calls
+Copying to terminal = 10000024 calls
+
+tr2b
+Copying to another file = 1250 calls
+Copying to terminal = 5522 calls
+
+
+5) Last I did the performance analysis using the time command 
+
+tr2u
+Copying to another file
+real	0m10.198s
+user	0m1.361s
+sys	0m8.729s
+
+Copying to terminal
+real	0m9.759s
+user	0m1.374s
+sys	0m8.370s
+
+tr2b
+Copying to another file = 1250 calls
+real	0m0.209s
+user	0m0.122s
+sys	0m0.007s
+
+Copying to terminal = 5522 calls
+real	0m3.071s
+user	0m0.175s
+sys	0m0.040s
+
+
+**************
+**************
+***Homework*** 
+**************
+**************
+
+Sfrobu performance analysis
+
+WORDS	  TIME 	  COMMAND	  
+0         0.004	  time ./sfrobu < zero.txt
+10        0.005   time ./sfrobu < ten.txt
+100       0.007	  time ./sfrobu < hundred.txt
+1000      0.008	  time ./sfrobu < thousand.txt
+10000     0.043	  time ./sfrobu < tenthousand.txt
+100000    0.328   time ./sfrobu < hundredthousand.txt
+1000000   3.324	  time ./sfrobu < million.txt
+10000000 39.335   time ./sfrobu < tenmillion.txt
+
+The time function with respect to number of input lines start with a somewhat 
+Constant spoke and considering there are c words in a line on an average, the
+Time starts spiking after the 1000/c lines mark in approximately a linear manner 
+such that if the number of lines increase by 10-fold , so does the time 
+
+Sfrob performance analysis
+
+WORDS	  TIME 	  COMMAND	  
+0         0.004	  time ./sfrob < zero.txt
+10        0.004   time ./sfrobu < ten.txt
+100       0.004	  time ./sfrobu < hundred.txt
+1000      0.005	  time ./sfrobu < thousand.txt
+10000     0.017	  time ./sfrobu < tenthousand.txt
+100000    0.126   time ./sfrobu < hundredthousand.txt
+1000000   1.313	  time ./sfrobu < million.txt
+10000000 17.569   time ./sfrobu < tenmillion.txt
+
+The time function with respect to number of input lines start with a somewhat 
+Constant spoke and considering there are c words in a line on an average, the
+Time starts spiking after the 1000/c lines mark in a exponential manner.
+
+The trends clearly suggests that for very large data (greater than 10000000/c lines
+The Sfrobu will be certainly more efficient then sfrob.
+
+
+-----------------------------------------------------------------------------------
+
+System Calls for allocating Memory 
+
+I ran a multitude of commands on strace. Like - 
+
+time ./sfrob < zero.txt
+time ./sfrob < hundred.txt
+time ./sfrob < thousand.txt
+
+What I found was that of all the system calls the ones that had exact file sizes, and
+Random memory addresses as arguments or results can likely be the system calls
+For memory functions like malloc and realloc. Those were - 
+mmap
+brk
+mprotect
+munmap 
+
+To particularly investigate the 4 system calls above . I wrote a new C program in which 
+I just malloced 5 bytes and reallocated it to 10 bytes. There I found that bro and mmap 
+closely relate to the actual memory assignment and mprotect and munmap are just kind of 
+ending checks. This made it pretty clear that brk and mmap are the system calls of interest.
+
+
+
+
+
